@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="uk">
+<head>
+ <meta charset="UTF-8">
+ <title>Language Learning — jQuery</title>
+ <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+ <style>
+ body {
+ font-family: Arial, sans-serif;
+ background: #eef2ff;
+ margin: 0;
+ padding: 20px;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ }
+ .card {
+ width: 300px;
+ background: #fff;
+ padding: 20px;
+ border-radius: 15px;
+ box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+ text-align: center;
+ margin-top: 40px;
+ }
+ input {
+ width: 90%;
+ padding: 10px;
+ font-size: 16px;
+ margin-top: 15px;
+ }
+ #checkBtn {
+ margin-top: 15px;
+ padding: 10px 20px;
+ font-size: 16px;
+ background: #4a70ff;
+ color: white;
+ border: none;
+ border-radius: 10px;
+ cursor: pointer;
+ }
+ #checkBtn:hover {
+ background: #3358e8;
+ }
+ .stats {
+ margin-top: 20px;
+ font-size: 18px;
+ }
+ #modal {
+ position: fixed;
+ top: 0; left: 0;
+ width: 100%; height: 100%;
+ background: rgba(0,0,0,0.6);
+ display: none;
+ justify-content: center;
+ align-items: center;
+ }
+ .modal-window {
+ background: #fff;
+ padding: 30px;
+ border-radius: 20px;
+ width: 300px;
+ text-align: center;
+ }
+ select {
+ font-size: 16px;
+ padding: 8px;
+ border-radius: 8px;
+ margin-top: 15px;
+ }
+ </style>
+</head>
+<body>
+
+<h2>Language Learning (jQuery)</h2>
+
+<div>
+ Рівень:
+ <select id="level">
+   <option value="easy">Легкий</option>
+   <option value="medium">Середній</option>
+   <option value="hard">Складний</option>
+ </select>
+ <button id="start">Почати</button>
+</div>
+
+<div id="stepInfo" style="display:none;">Крок: 1 / 10</div>
+
+<div class="stats" style="display:none;">
+ ✔ Вірно: <span id="correct">0</span> |
+ ✖ Невірно: <span id="wrong">0</span>
+</div>
+
+<div class="card" style="display:none;">
+ <h3 id="word">apple</h3>
+ <input type="text" id="answer" placeholder="Введи переклад...">
+ <button id="checkBtn">Перевірити</button>
+</div>
+
+<div id="modal">
+ <div class="modal-window">
+ <h2>Ваш рівень:</h2>
+ <p id="resultText"></p>
+ <button id="reload">Почати заново</button>
+ </div>
+</div>
+
+<script>
+$(document).ready(function(){
+ let easy = [
+ { en: "apple", ua: "яблуко" },
+ { en: "cat", ua: "кіт" },
+ { en: "sun", ua: "сонце" },
+ { en: "book", ua: "книга" },
+ { en: "dog", ua: "собака" }
+ ];
+
+ let medium = [
+ { en: "window", ua: "вікно" },
+ { en: "mountain", ua: "гора" },
+ { en: "forest", ua: "ліс" },
+ { en: "school", ua: "школа" },
+ { en: "family", ua: "сім'я" }
+ ];
+
+ let hard = [
+ { en: "knowledge", ua: "знання" },
+ { en: "strength", ua: "сила" },
+ { en: "responsibility", ua: "відповідальність" },
+ { en: "decision", ua: "рішення" },
+ { en: "possibility", ua: "можливість" }
+ ];
+
+ let words = [];
+ let index = 0;
+ let correct = 0;
+ let wrong = 0;
+
+ $("#start").click(function(){
+   let level = $("#level").val();
+   if(level === "easy") words = easy;
+   if(level === "medium") words = medium;
+   if(level === "hard") words = hard;
+
+   words = words.concat(words).sort(() => Math.random() - 0.5).slice(0,10);
+
+   $("#start").hide();
+   $("#level").hide();
+   $(".card").show();
+   $(".stats").show();
+   $("#stepInfo").show();
+
+   loadWord();
+ });
+
+ function loadWord() {
+ $("#word").text(words[index].en);
+ $("#stepInfo").text("Крок: " + (index + 1) + " / 10");
+ $("#answer").val("");
+ }
+
+ $("#checkBtn").click(function(){
+ let userAnswer = $("#answer").val().trim().toLowerCase();
+ let rightAnswer = words[index].ua.toLowerCase();
+
+ if(userAnswer === rightAnswer && userAnswer !== "") {
+ correct++;
+ $("#correct").text(correct);
+ $(".card").css("border", "3px solid #00d600");
+ } else {
+ wrong++;
+ $("#wrong").text(wrong);
+ $(".card").css("border", "3px solid red");
+ }
+
+ setTimeout(() => {
+ $(".card").css("border", "none");
+ index++;
+ if(index < 10) loadWord();
+ else showResult();
+ }, 500);
+ });
+
+ function showResult() {
+ let level = "";
+ if(correct === 10) level = "🔥 Ідеально!";
+ else if(correct >= 7) level = "😊 Добре!";
+ else if(correct >= 4) level = "🙂 Середньо.";
+ else level = "😢 Слабко.";
+
+ $("#resultText").text("Правильно: " + correct + " з 10. " + level);
+ $("#modal").fadeIn(300);
+ }
+
+ $("#reload").click(() => location.reload());
+});
+</script>
+</body>
+</html>
